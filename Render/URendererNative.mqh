@@ -146,7 +146,7 @@ public:
       for(int i = total - 1; i >= 0; i--)
         {
          string name = ObjectName(s_chart_id, i, s_subwindow);
-         if(StringFind(name, s_prefix) == 0 || StringFind(name, "ULib_Nat_") == 0)
+         if(StringFind(name, s_prefix) == 0)
             ObjectDelete(s_chart_id, name);
         }
      }

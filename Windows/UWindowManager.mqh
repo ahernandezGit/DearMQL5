@@ -31,15 +31,6 @@ public:
          out_y = (int)GlobalVariableGet(gv_y);
          return(true);
         }
-      // Fallback to legacy prefix if present
-      string legacy_x = StringFormat("ULib_%s_X", win_title);
-      string legacy_y = StringFormat("ULib_%s_Y", win_title);
-      if(GlobalVariableCheck(legacy_x) && GlobalVariableCheck(legacy_y))
-        {
-         out_x = (int)GlobalVariableGet(legacy_x);
-         out_y = (int)GlobalVariableGet(legacy_y);
-         return(true);
-        }
       return(false);
      }
   };
