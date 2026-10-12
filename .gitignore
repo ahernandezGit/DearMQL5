@@ -1,0 +1,16 @@
+# Compiled MQL5 binaries
+*.ex5
+*.ex4
+
+# Logs and crash dumps
+*.log
+*.dmp
+
+# OS / Editor temporary files
+Thumbs.db
+.DS_Store
+*.swp
+*.bak
+*.tmp
+.vscode/
+.idea/
