@@ -139,6 +139,24 @@ public:
       UDiagnostics::SetDirty();
      }
 
+   ///  Draws procedural vector collapse button fallback for native MT5 objects
+   static void DrawCollapseButton(const int x, const int y, const int size,
+                                  const bool collapsed,
+                                  const bool is_hover,
+                                  const bool is_active,
+                                  const uint icon_color)
+     {
+      if(size <= 0) return;
+      if(is_active)
+         DrawRectFilled(x, y, size, size, 0x44FFFFFF);
+      else if(is_hover)
+         DrawRectFilled(x, y, size, size, 0x22FFFFFF);
+
+      string icon = collapsed ? "▼" : "▲";
+      uint clr = is_active ? 0xFFFFFFFF : (is_hover ? 0xFFFFFFFF : icon_color);
+      DrawText(x + (size - 10) / 2, y + (size - 12) / 2, icon, clr, "Arial", 8);
+     }
+
    ///  Shuts down native renderer and cleans up all objects.
    static void Shutdown(void)
      {

@@ -149,11 +149,15 @@ public:
             // Title Text
             URendererCanvas::DrawText(x + th.padding_x, y + 4, title, th.text, th.font_name, th.font_size, 0);
 
-            // Collapse icon
+            // Modern Vector Collapse Button with Hover/Active Pill Container
             if((flags & U_WINDOW_NO_COLLAPSE) == 0)
               {
-               string icon = collapsed ? "[+]" : "[-]";
-               URendererCanvas::DrawText(x + w - 24, y + 4, icon, th.text_dim, th.font_name, th.font_size, 0);
+               int btn_size = th.window_title_height - 6;
+               int btn_x    = x + w - btn_size - 6;
+               int btn_y    = y + 3;
+               bool is_hov  = UWindow::IsCollapseHovered(win_id);
+               bool is_act  = UWindow::IsCollapseActive(win_id);
+               URendererCanvas::DrawCollapseButton(btn_x, btn_y, btn_size, collapsed, is_hov, is_act, th.text_dim);
               }
            }
       #else
@@ -162,10 +166,26 @@ public:
            {
             URendererNative::DrawRectFilled(x, y, w, th.window_title_height, th.window_titlebar);
             URendererNative::DrawText(x + th.padding_x, y + 4, title, th.text, th.font_name, th.font_size);
+            if((flags & U_WINDOW_NO_COLLAPSE) == 0)
+              {
+               int btn_size = th.window_title_height - 6;
+               int btn_x    = x + w - btn_size - 6;
+               int btn_y    = y + 3;
+               bool is_hov  = UWindow::IsCollapseHovered(win_id);
+               bool is_act  = UWindow::IsCollapseActive(win_id);
+               URendererNative::DrawCollapseButton(btn_x, btn_y, btn_size, collapsed, is_hov, is_act, th.text_dim);
+              }
            }
       #endif
 
       return(visible);
+     }
+
+   ///  Checks if a window is currently collapsed by its title.
+   static bool IsWindowCollapsed(const string title)
+     {
+      ulong win_id = UIdStack::GetId(title);
+      return(UWindow::IsWindowCollapsed(win_id));
      }
 
    ///  Ends the current window scope.

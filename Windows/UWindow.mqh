@@ -83,8 +83,10 @@ public:
 
       int x = (int)UState::GetInt(win_id + 1, default_x);
       int y = (int)UState::GetInt(win_id + 2, default_y);
-      int w = (int)UState::GetInt(win_id + 3, default_w);
-      int h = (int)UState::GetInt(win_id + 4, default_h);
+      int w = default_w;
+      int h = default_h;
+      UState::SetInt(win_id + 3, w);
+      UState::SetInt(win_id + 4, h);
       bool collapsed = (UState::GetInt(win_id + 5, 0) != 0);
 
       int title_h = ((flags & U_WINDOW_NO_TITLEBAR) != 0) ? 0 : th.window_title_height;
@@ -104,12 +106,19 @@ public:
 
          bool c_hov = false, c_clk = false, c_act = false;
          UWidget::Behavior(col_id, btn_x, btn_y, btn_size, btn_size, c_hov, c_clk, c_act);
+         UState::SetInt(win_id + 6, c_hov ? 1 : 0);
+         UState::SetInt(win_id + 7, c_act ? 1 : 0);
          if(c_clk)
            {
             collapsed = !collapsed;
             UState::SetInt(win_id + 5, collapsed ? 1 : 0);
             cur_h = collapsed ? title_h : h;
            }
+        }
+      else
+        {
+         UState::SetInt(win_id + 6, 0);
+         UState::SetInt(win_id + 7, 0);
         }
 
       // 2. Active Dragging Engine (Absolute Anchor Drag)
@@ -218,6 +227,30 @@ public:
          s_current_title         = "";
          UIdStack::Reset();
         }
+     }
+
+   ///  Checks if collapse button of given window is currently hovered.
+   static bool IsCollapseHovered(const ulong win_id)
+     {
+      return(UState::GetInt(win_id + 6, 0) != 0);
+     }
+
+   ///  Checks if collapse button of given window is currently active (pressed).
+   static bool IsCollapseActive(const ulong win_id)
+     {
+      return(UState::GetInt(win_id + 7, 0) != 0);
+     }
+
+   ///  Checks if the given window is currently collapsed.
+   static bool IsWindowCollapsed(const ulong win_id)
+     {
+      return(UState::GetInt(win_id + 5, 0) != 0);
+     }
+
+   ///  Programmatically sets the collapse state of the window.
+   static void SetWindowCollapsed(const ulong win_id, const bool collapsed)
+     {
+      UState::SetInt(win_id + 5, collapsed ? 1 : 0);
      }
   };
 

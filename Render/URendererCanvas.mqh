@@ -75,6 +75,8 @@ public:
          if(m_width != m_canvas.Width() || m_height != m_canvas.Height())
            {
             m_canvas.Resize(m_width, m_height);
+            ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_XSIZE, m_width);
+            ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_YSIZE, m_height);
             m_is_dirty = true;
            }
          return(true);
@@ -86,6 +88,8 @@ public:
       if(!m_canvas.CreateBitmapLabel(m_chart_id, m_subwindow, m_obj_name, m_x, m_y, m_width, m_height, COLOR_FORMAT_ARGB_NORMALIZE))
          return(false);
 
+      ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_XSIZE, m_width);
+      ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_YSIZE, m_height);
       ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_SELECTED, false);
       ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_ZORDER, 50);
@@ -115,6 +119,8 @@ public:
          if(m_is_created)
            {
             m_canvas.Resize(m_width, m_height);
+            ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_XSIZE, m_width);
+            ObjectSetInteger(m_chart_id, m_obj_name, OBJPROP_YSIZE, m_height);
             m_is_dirty = true;
            }
         }
@@ -191,6 +197,33 @@ public:
         {
          m_canvas.FontSet(font_name, -font_size * 10);
          m_canvas.TextOut(x, y, text, clr, flags);
+         m_is_dirty = true;
+        }
+     }
+
+   void LineAA(const int x1, const int y1, const int x2, const int y2, const uint clr)
+     {
+      if(m_is_created)
+        {
+         m_canvas.LineAA(x1, y1, x2, y2, clr);
+         m_is_dirty = true;
+        }
+     }
+
+   void FillTriangle(const int x1, const int y1, const int x2, const int y2, const int x3, const int y3, const uint clr)
+     {
+      if(m_is_created)
+        {
+         m_canvas.FillTriangle(x1, y1, x2, y2, x3, y3, clr);
+         m_is_dirty = true;
+        }
+     }
+
+   void FillCircle(const int x, const int y, const int r, const uint clr)
+     {
+      if(m_is_created && r > 0)
+        {
+         m_canvas.FillCircle(x, y, r, clr);
          m_is_dirty = true;
         }
      }
@@ -372,6 +405,87 @@ public:
       s_cur_surface.TextOut(lx, ly, text, argb, font_name, font_size, flags);
       UDiagnostics::IncrementDrawCalls();
       UDiagnostics::SetDirty();
+     }
+
+   static void DrawLineAA(const int x1, const int y1, const int x2, const int y2, const uint argb)
+     {
+      if(s_cur_surface == NULL) return;
+      int lx1 = x1 - s_cur_surface.GetX();
+      int ly1 = y1 - s_cur_surface.GetY();
+      int lx2 = x2 - s_cur_surface.GetX();
+      int ly2 = y2 - s_cur_surface.GetY();
+      s_cur_surface.LineAA(lx1, ly1, lx2, ly2, argb);
+      UDiagnostics::IncrementDrawCalls();
+      UDiagnostics::SetDirty();
+     }
+
+   static void DrawTriangleFilled(const int x1, const int y1, const int x2, const int y2, const int x3, const int y3, const uint argb)
+     {
+      if(s_cur_surface == NULL) return;
+      int sx = s_cur_surface.GetX();
+      int sy = s_cur_surface.GetY();
+      s_cur_surface.FillTriangle(x1 - sx, y1 - sy, x2 - sx, y2 - sy, x3 - sx, y3 - sy, argb);
+      UDiagnostics::IncrementDrawCalls();
+      UDiagnostics::SetDirty();
+     }
+
+   static void DrawCircleFilled(const int x, const int y, const int r, const uint argb)
+     {
+      if(s_cur_surface == NULL || r <= 0) return;
+      int lx = x - s_cur_surface.GetX();
+      int ly = y - s_cur_surface.GetY();
+      s_cur_surface.FillCircle(lx, ly, r, argb);
+      UDiagnostics::IncrementDrawCalls();
+      UDiagnostics::SetDirty();
+     }
+
+   ///  Draws procedural vector collapse button (Chevron with hover/active pill container)
+   static void DrawCollapseButton(const int x, const int y, const int size,
+                                  const bool collapsed,
+                                  const bool is_hover,
+                                  const bool is_active,
+                                  const uint icon_color,
+                                  const uint hover_color = 0x22FFFFFF,
+                                  const uint active_color = 0x44FFFFFF)
+     {
+      if(s_cur_surface == NULL || size <= 0) return;
+
+      // 1. Interactive Button Background Pill
+      if(is_active)
+        {
+         DrawRectFilled(x, y, size, size, active_color);
+         DrawRect(x, y, size, size, 0x66FFFFFF);
+        }
+      else if(is_hover)
+        {
+         DrawRectFilled(x, y, size, size, hover_color);
+         DrawRect(x, y, size, size, 0x33FFFFFF);
+        }
+
+      // 2. Vector Chevron Geometry
+      int cx = x + size / 2;
+      int cy = y + size / 2;
+      int span = MathMax(3, (size - 8) / 2); // ~5px for size 18
+      int d    = MathMax(2, span / 2);       // ~2px
+
+      uint clr = is_active ? 0xFFFFFFFF : (is_hover ? 0xFFFFFFFF : icon_color);
+
+      if(!collapsed)
+        {
+         // Open Window -> Chevron pointing UP (click to collapse up)
+         DrawLineAA(cx - span, cy + d,     cx, cy - d,     clr);
+         DrawLineAA(cx, cy - d,             cx + span, cy + d, clr);
+         DrawLineAA(cx - span, cy + d + 1, cx, cy - d + 1, clr);
+         DrawLineAA(cx, cy - d + 1,         cx + span, cy + d + 1, clr);
+        }
+      else
+        {
+         // Collapsed Window -> Chevron pointing DOWN (click to expand down)
+         DrawLineAA(cx - span, cy - d,     cx, cy + d,     clr);
+         DrawLineAA(cx, cy + d,             cx + span, cy - d, clr);
+         DrawLineAA(cx - span, cy - d - 1, cx, cy + d - 1, clr);
+         DrawLineAA(cx, cy + d - 1,         cx + span, cy - d - 1, clr);
+        }
      }
 
    static void PushClipRect(const int x, const int y, const int w, const int h)
