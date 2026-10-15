@@ -21,6 +21,7 @@ private:
    static bool    s_prev_mouse_down;
    static bool    s_mouse_clicked;
    static bool    s_mouse_released;
+   static bool    s_direct_click;
    static ulong   s_hot_id;
    static ulong   s_active_id;
    static ulong   s_prev_active_id;
@@ -38,14 +39,35 @@ public:
       s_mouse_down = ((flags & 1) != 0); // Left mouse button bit
      }
 
+   ///  Registers direct mouse click event from CHARTEVENT_CLICK for instantaneous responsiveness.
+   static void OnClick(const int x, const int y)
+     {
+      s_mouse_x      = x;
+      s_mouse_y      = y;
+      s_direct_click = true;
+      s_mouse_down   = false;
+     }
+
+   ///  Returns whether a direct click event is active on this frame.
+   static bool IsDirectClick(void) { return(s_direct_click); }
+
    ///  Sets target chart ID for chart property controls.
    static void SetChartId(const long cid) { s_chart_id = cid; }
 
    ///  Advances input state at the beginning of each frame.
    static void NewFrame(void)
      {
-      s_mouse_clicked  = (s_mouse_down && !s_prev_mouse_down);
-      s_mouse_released = (!s_mouse_down && s_prev_mouse_down);
+      if(s_direct_click)
+        {
+         s_mouse_clicked   = true;
+         s_mouse_released  = true;
+         s_prev_mouse_down = false;
+        }
+      else
+        {
+         s_mouse_clicked  = (s_mouse_down && !s_prev_mouse_down);
+         s_mouse_released = (!s_mouse_down && s_prev_mouse_down);
+        }
 
       // Compute frame mouse movement delta BEFORE updating prev coordinates
       s_delta_x = s_mouse_x - s_prev_mouse_x;
@@ -66,9 +88,10 @@ public:
    static void EndFrame(void)
      {
       // Release active capture once frame finishes if button was released or not down
-      if(s_mouse_released || !s_mouse_down)
+      if(s_direct_click || s_mouse_released || !s_mouse_down)
         {
-         s_active_id = 0;
+         s_active_id    = 0;
+         s_direct_click = false;
         }
      }
 
@@ -159,6 +182,7 @@ bool  UInputState::s_mouse_down             = false;
 bool  UInputState::s_prev_mouse_down        = false;
 bool  UInputState::s_mouse_clicked          = false;
 bool  UInputState::s_mouse_released         = false;
+bool  UInputState::s_direct_click           = false;
 ulong UInputState::s_hot_id                 = 0;
 ulong UInputState::s_active_id              = 0;
 ulong UInputState::s_prev_active_id         = 0;

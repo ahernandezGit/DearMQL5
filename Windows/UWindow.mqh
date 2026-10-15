@@ -101,11 +101,17 @@ public:
          int btn_x      = x + w - btn_size - 6;
          int btn_y      = y + 3;
 
+         // Generous hit box across full titlebar height for instantaneous single-click response
+         int hit_x = btn_x - 4;
+         int hit_y = y;
+         int hit_w = btn_size + 8;
+         int hit_h = title_h;
+
          mouse_on_col_btn = UMath::PointInRect(UInputState::MouseX(), UInputState::MouseY(),
-                                               btn_x, btn_y, btn_size, btn_size);
+                                               hit_x, hit_y, hit_w, hit_h);
 
          bool c_hov = false, c_clk = false, c_act = false;
-         UWidget::Behavior(col_id, btn_x, btn_y, btn_size, btn_size, c_hov, c_clk, c_act);
+         UWidget::Behavior(col_id, hit_x, hit_y, hit_w, hit_h, c_hov, c_clk, c_act);
          UState::SetInt(win_id + 6, c_hov ? 1 : 0);
          UState::SetInt(win_id + 7, c_act ? 1 : 0);
          if(c_clk)
@@ -251,6 +257,19 @@ public:
    static void SetWindowCollapsed(const ulong win_id, const bool collapsed)
      {
       UState::SetInt(win_id + 5, collapsed ? 1 : 0);
+     }
+
+   ///  Retrieves persistent position and dimensions from retained state.
+   static bool GetWindowRect(const ulong win_id, int &out_x, int &out_y, int &out_w, int &out_h, bool &out_collapsed)
+     {
+      if(UState::GetInt(win_id + 1, -999999) == -999999) return(false);
+      out_x = (int)UState::GetInt(win_id + 1, 0);
+      out_y = (int)UState::GetInt(win_id + 2, 0);
+      out_w = (int)UState::GetInt(win_id + 3, 270);
+      out_collapsed = (UState::GetInt(win_id + 5, 0) != 0);
+      SUTheme th = UTheme::Get();
+      out_h = out_collapsed ? th.window_title_height : (int)UState::GetInt(win_id + 4, 385);
+      return(true);
      }
   };
 

@@ -83,6 +83,10 @@ public:
         {
          UInputState::OnMouseMove((int)lparam, (int)dparam, (uint)StringToInteger(sparam));
         }
+      else if(id == CHARTEVENT_CLICK)
+        {
+         UInputState::OnClick((int)lparam, (int)dparam);
+        }
      }
 
    ///  Begins a new GUI frame. Must be called before any windows or widgets.
@@ -186,6 +190,19 @@ public:
      {
       ulong win_id = UIdStack::GetId(title);
       return(UWindow::IsWindowCollapsed(win_id));
+     }
+
+   ///  Returns whether any window/hub is currently being actively dragged.
+   static bool IsDragging(void)
+     {
+      return(UInputState::GetDragOwner() != 0);
+     }
+
+   ///  Retrieves dynamic window rect and collapse status.
+   static bool GetWindowRect(const string title, int &out_x, int &out_y, int &out_w, int &out_h, bool &out_collapsed)
+     {
+      ulong win_id = UIdStack::GetId(title);
+      return(UWindow::GetWindowRect(win_id, out_x, out_y, out_w, out_h, out_collapsed));
      }
 
    ///  Ends the current window scope.
