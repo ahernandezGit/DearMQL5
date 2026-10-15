@@ -102,10 +102,10 @@ public:
      }
 
    ///  Finalizes and renders the current GUI frame to chart.
-   static void Render(void)
+   static void Render(const bool force_redraw = false)
      {
       #ifdef UI_BACKEND_CANVAS
-         URendererCanvas::EndFrame();
+         URendererCanvas::EndFrame(force_redraw);
       #else
          URendererNative::EndFrame();
       #endif

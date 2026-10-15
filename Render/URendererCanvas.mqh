@@ -144,11 +144,11 @@ public:
          m_canvas.Erase(argb);
      }
 
-   void Update(void)
+   void Update(const bool force_redraw = false)
      {
       if(m_is_created && m_is_dirty)
         {
-         m_canvas.Update();
+         m_canvas.Update(force_redraw);
          m_is_dirty = false;
         }
      }
@@ -301,13 +301,13 @@ public:
       s_clip_active = false;
      }
 
-   static void EndFrame(void)
+   static void EndFrame(const bool force_redraw = false)
      {
       for(int i = 0; i < s_surface_count; i++)
         {
          if(CheckPointer(s_surfaces[i]) != POINTER_INVALID)
            {
-            s_surfaces[i].Update();
+            s_surfaces[i].Update(force_redraw);
            }
         }
       s_cur_surface = NULL;
