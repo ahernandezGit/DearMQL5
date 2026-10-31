@@ -7,6 +7,17 @@
 
 **DearMQL5** is an institutional-grade, immediate-mode graphical user interface (GUI) framework designed from the ground up for **MetaTrader 5 (MQL5)**. Inspired by the ergonomics and speed of **Dear ImGui**, DearMQL5 enables quantitative developers, proprietary trading desks, and retail traders to construct sophisticated, real-time cockpits and execution HUDs with zero memory allocation churn during render loops, deterministic sub-millisecond execution times, and zero CPU texture-move dragging.
 
+<p align="center">
+  <img src="assets/propfirm_cockpit_demo.png" alt="DearMQL5 Full Widget Suite Demo" width="320"/>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/kinetic_barycenter_hud.png" alt="DearMQL5 Production Quant Indicator HUD" width="295"/>
+</p>
+<p align="center">
+  <em><strong>Figure 1</strong>: DearMQL5 running natively in MetaTrader 5.<br/>
+  <strong>Left</strong>: Full Widget Suite reference cockpit (<a href="Examples/EA_DearMQL5_Demo.mq5"><code>Examples/EA_DearMQL5_Demo.mq5</code></a>) showing buttons with accent states, sliders, dynamic drawdown progress bar, toggles, and collapsing headers.<br/>
+  <strong>Right</strong>: Live telemetry HUD deployed in a multi-timeframe quantitative indicator (<a href="https://github.com/ahernandezGit/KineticBarycenter"><code>Kinetic Barycenter</code></a>).</em>
+</p>
+
 ---
 
 ## Table of Contents
@@ -128,6 +139,9 @@ When multiple windows exist on the same chart:
 
 ```
 DearMQL5/
+├── assets/                 # Screenshot gallery & visual documentation assets
+│   ├── propfirm_cockpit_demo.png
+│   └── kinetic_barycenter_hud.png
 ├── UI.mqh                  # Primary public API facade and backend selector
 ├── Core/
 │   ├── UInputState.mqh     # Mouse/keyboard input tracking, deltas & chart scroll guard
@@ -230,6 +244,14 @@ void RenderCockpit()
    UI::Render();
   }
 ```
+
+### Complete Prop-Firm Cockpit Example
+
+A fully featured prop-firm trading sentinel is included in [EA_DearMQL5_Demo.mq5](file:///G:/Ondeb/repos/mql5/Libraries/DearMQL5/Examples/EA_DearMQL5_Demo.mq5). It illustrates production integration with account metrics, drawdown progress bar with color thresholds, order execution buttons, risk sliders, operational toggles, and expandable engine diagnostics:
+
+<p align="center">
+  <img src="assets/propfirm_cockpit_demo.png" alt="DearMQL5 Prop-Firm Sentinel HUD Demo" width="320"/>
+</p>
 
 ---
 
@@ -368,6 +390,13 @@ When running an institutional EA (e.g. `EA_PropFirm_Sentinel`) alongside a separ
 3. **Fixed Coordinate Collision**: Without persistence, both panels launch at `(20, 30)` and overlap completely.
 
 ### The DearMQL5 Solution
+
+<p align="center">
+  <img src="assets/kinetic_barycenter_hud.png" alt="Kinetic Barycenter Production Indicator Coexistence HUD" width="295"/>
+  <br/>
+  <em><strong>Figure 2</strong>: Production telemetry HUD (<a href="https://github.com/ahernandezGit/KineticBarycenter">Kinetic Barycenter</a>) rendered via DearMQL5 isolated canvas alongside chart indicators.</em>
+</p>
+
 1. **Isolated Bounding Boxes**: DearMQL5 windows only exist within their bounding rectangle (`[x, x + w] x [y, y + h]`). All chart areas outside the HUD receive native chart events.
 2. **Deterministic Drag Lock**: Dragging a DearMQL5 window asserts `s_drag_owner_id` and temporarily disables `CHART_MOUSE_SCROLL`.
 3. **Multi-Window Persistence**: Positions are automatically preserved in MT5 GlobalVariables across timeframe switches.
